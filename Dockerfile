@@ -1,5 +1,5 @@
-FROM registry.fedoraproject.org/fedora-minimal
-RUN microdnf install -y python pip
+FROM python:3.10-bullseye
+#RUN microdnf install -y python pip
 RUN mkdir bubla
 WORKDIR /bubla
 ADD *.py /bubla
