@@ -30,3 +30,4 @@ jobs:
           context: .
           push: true
           tags: quay.io/${{ secrets.QUAY_USERNAME }}/bubla:latest
+          platforms: linux/amd64
