@@ -1,4 +1,4 @@
-FROM fedora-minimal:latest
+FROM registry.fedoraproject.org/fedora-minimal
 RUN microdnf install -y python pip
 RUN mkdir bubla
 WORKDIR /bubla
