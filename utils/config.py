@@ -1,7 +1,7 @@
 import json
 import os
 
-discord_secret_path = os.path.abspath('credentials/discord_bot_secret.json')
+DISCORD_BOT_SECRET_PATH = os.path.abspath('credentials/discord_bot_secret.json')
 
 
 def load_discord_secret(filename):

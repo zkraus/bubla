@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "bubla"
+version = "0.1.0"
+description = "personal discord bot for learning discord api and stuff"
+authors = ["Zdenek Kraus <zdenek.kraus@gmail.com>"]
+readme = "README.md"
+packages = [{ include = "bubla" }]
+
+[tool.poetry.dependencies]
+python = ">3.10"
+discord-py = "^2.3.2"
+colorlog = "^6.7.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = ["poetry.core.masonry.api"]

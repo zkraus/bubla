@@ -1,15 +1,11 @@
 import logging
 
-import discord
-import json
-
-import bubla
+from bubla import bubla
 import utils
-import logger_settings
 
-logger_settings.config_console_logger()
+utils.logger_settings.config_console_logger()
 
-token = utils.load_discord_secret(utils.discord_secret_path)
+token = utils.config.load_discord_secret(utils.config.DISCORD_BOT_SECRET_PATH)
 
 logger = logging.getLogger(__name__)
 

@@ -5,6 +5,9 @@ import random
 import discord
 from discord.ext import commands, tasks
 
+from . import cogs
+
+
 logger = logging.getLogger(__name__)
 config = {
     "prefix": ".",
@@ -42,7 +45,7 @@ class Bubla(commands.Bot):
 
         for cog_name in self.cogs_list:
             try:
-                await self.load_extension(f"cogs.{cog_name}")
+                await self.load_extension(f"bubla.cogs.{cog_name}")
                 self.logger.info(f"Cog {cog_name} loaded")
             except Exception as e:
                 exception = f"{type(e).__name__}: {e}"
