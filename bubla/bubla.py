@@ -1,6 +1,7 @@
 import datetime
 import logging
 import random
+from utils import config
 
 import discord
 from discord.ext import commands, tasks
@@ -9,23 +10,20 @@ from . import cogs
 
 
 logger = logging.getLogger(__name__)
-config = {
-    "prefix": ".",
-}
 
 intents = discord.Intents.default()
 intents.message_content = True
 
-CHANNEL_ID = 482629422181122051
 
 class Bubla(commands.Bot):
     cogs_list = [
         'general',
+        'rally_calendar'
     ]
 
     def __init__(self) -> None:
         super().__init__(
-            command_prefix=commands.when_mentioned_or(config["prefix"]),
+            command_prefix=commands.when_mentioned_or(config.COMMAND_PREFIX),
             intents=intents,
             help_command=None,
         )
@@ -39,6 +37,7 @@ class Bubla(commands.Bot):
         """
         self.logger = logger
         self.config = config
+        self.prefix = config.COMMAND_PREFIX
         self.database = None
 
     async def load_cogs(self) -> None:
@@ -68,7 +67,7 @@ class Bubla(commands.Bot):
 
     @tasks.loop(time=datetime.time(hour=9, minute=50, tzinfo=datetime.timezone.utc))
     async def timed_hello(self) -> None:
-        channel = self.get_channel(CHANNEL_ID)
+        channel = self.get_channel(config.REMINDER_CHANNEL_ID)
         await channel.send('timed hello')
 
     @timed_hello.before_loop
