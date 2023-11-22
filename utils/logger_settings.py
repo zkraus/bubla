@@ -57,8 +57,8 @@ def config_console_logger(filename=None, level=None, fmt=None, fmt_color=None,
     datefmt = datefmt or DATE_FORMAT_ISO
 
     # console handler
-    # console_handler = logging.StreamHandler(stream=filename)  # Python 2.7
-    console_handler = logging.StreamHandler()  # Python 2.6
+    console_handler = logging.StreamHandler(stream=filename)  # Python 2.7
+    # console_handler = logging.StreamHandler()  # Python 2.6
     console_handler.setLevel(level)
     console_formatter = logging.Formatter(fmt, datefmt=datefmt)
 
@@ -81,9 +81,9 @@ def config_console_logger(filename=None, level=None, fmt=None, fmt_color=None,
             datefmt=datefmt,
         )
     except ImportError:
-        # import_error_msg.append(
-        #     "cannot initialize colorlog, using boring streamhandler"
-        # )
+        import_error_msg.append(
+            "cannot initialize colorlog, using boring streamhandler"
+        )
         pass
     console_handler.setFormatter(console_formatter)
     logging.getLogger().addHandler(console_handler)
@@ -94,4 +94,5 @@ def config_console_logger(filename=None, level=None, fmt=None, fmt_color=None,
 
 
 # default logger level INFO
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().setLevel(logging.NOTSET)
+logging.root.setLevel(logging.NOTSET)

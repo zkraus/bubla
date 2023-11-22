@@ -33,7 +33,7 @@ class General(commands.Cog, name="general"):
             data = []
             for command in list_commands:
                 description = command.description.partition("\n")[0]
-                data.append(f"{config.COMMAND_PREFIX}{command.name} - {description}")
+                data.append(f"{config.DISCORD_COMMAND_PREFIX}{command.name} - {description}")
             help_text = "\n".join(data)
             embed.add_field(
                 name=i.capitalize(), value=f"```{help_text}```", inline=False
