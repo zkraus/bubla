@@ -52,7 +52,7 @@ class Bubla(commands.Bot):
         log.info("-------------------")
         await self.load_cogs()
         self.status_task.start()
-        self.timed_hello.start()
+        # self.timed_hello.start()
 
     @tasks.loop(minutes=1.0)
     async def status_task(self) -> None:
