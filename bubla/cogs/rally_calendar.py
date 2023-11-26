@@ -16,8 +16,8 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         self.calendar = google_calendar.Calendar(config.CALENDAR_ID, config.CALENDAR_SECRET_FILENAME,
                                                  config.CALENDAR_TOKEN_FILENAME)
 
-        self.rally_reminder.start()
-        # self.timed_reminder.start()
+        # self.rally_reminder.start()
+        self.timed_reminder.start()
 
     @tasks.loop(minutes=24.0)
     async def rally_reminder(self) -> None:
