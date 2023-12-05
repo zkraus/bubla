@@ -96,8 +96,12 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         channel = self.bot.get_channel(config.DISCORD_REMINDER_CHANNEL_ID)
         await self.reminder_core(channel)
 
-    @commands.command()
+    @commands.hybrid_command()
     async def reminder(self, ctx):
+        """Manual call to initiate reminder functionality
+
+        This is done by timed event, it should not be necessary to use this manually.
+        """
         await self.reminder_core(ctx)
 
     @timed_reminder.before_loop
@@ -105,65 +109,40 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         await self.bot.wait_until_ready()
 
     @commands.command()
-    async def rally(self, ctx, subcommand=None):
-        result = []
-        if not subcommand:
-            result = await self.rally_now() + [""] + await self.rally_upcoming()
-        else:
-            if subcommand == "now":
-                result = await self.rally_now()
-            elif subcommand == "upcoming":
-                result = await self.rally_upcoming()
-            elif subcommand == "next":
-                result = await self.rally_next()
-            elif subcommand == "ends":
-                result = await self.rally_ends_soon()
-            else:
-                result = await self.help()
-        result = '\n'.join(result)
-        await ctx.send(f"{result}")
-
-    async def rally_now(self):
+    async def rally_now(self, ctx):
+        """Display currently live rally events"""
         events = self.calendar.get_events_current()
         if not events:
             return ["No current rally events available."]
         result = ["Current rally events:", self.calendar.format_events(events)]
-        return result
+        await ctx.send(result)
 
-    async def rally_upcoming(self):
+    @commands.command()
+    async def rally_upcoming(self, ctx):
+        """Display rallies upcoming in near future"""
         events = self.calendar.get_events_upcoming()
         if not events:
             return ["No upcoming rally events available."]
         result = ["Upcoming rally events:", self.calendar.format_events(events)]
-        return result
+        await ctx.send(result)
 
-    async def rally_next(self):
+    @commands.command()
+    async def rally_next(self, ctx):
+        """Display very next rally event"""
         events = self.calendar.get_events_next()
         if not events:
             return ["No next rally events available."]
         result = ["Next rally events:", self.calendar.format_events(events)]
-        return result
+        await ctx.send(result)
 
-    async def rally_ends_soon(self):
+    @commands.command()
+    async def rally_ends_soon(self, ctx):
+        """Display events that ends soon"""
         events = self.calendar.get_events_end_soon()
         if not events:
             return []
         result = ["Rally events ends soon:", self.calendar.format_events(events)]
-        return result
-
-    async def help(self):
-        return [
-            "Rally subcommands help",
-            f"```{self.bot.prefix}rally [<subcommand>]```",
-            "if `<subcommand>` is not specified, shows compound rally events plan, otherwise",
-            "* `now`: Shows current rally events",
-            "* `upcoming`: Shows upcoming rally events",
-            "* `next`: Shows next rally events, starting soon",
-            "* `ends`: Shows rally events that ends soon",
-            "",
-            f"🚧 ```{self.bot.prefix}leaderboard``` -- PREVIEW: display leaderboard on current event",
-            f"🚧 ```{self.bot.prefix}standings``` -- PREVIEW: display current standings",
-        ]
+        await ctx.send(result)
 
     async def get_results(self):
         return [
@@ -262,6 +241,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
 
     @commands.command()
     async def leaderboard(self, ctx):
+        """STUB: this should display leaderboard for current live rally event"""
         message = await self.get_leaderboard_message()
         await ctx.send(preview(message))
 
@@ -274,6 +254,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
 
     @commands.command()
     async def standings(self, ctx):
+        """STUB: this should display current champion standings"""
         message = await self.get_standings_message()
         await ctx.send(preview(message))
 

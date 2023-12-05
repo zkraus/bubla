@@ -20,7 +20,6 @@ class Dev(commands.Cog, name="dev"):
         self.start = datetime.datetime.strptime("2023-12-07", "%Y-%m-%d").astimezone()
         self.end = self.start + datetime.timedelta(days=3)
 
-    @commands.command()
     async def make_event(self, ctx: commands.Context) -> None:
         guild = self.bot.get_guild(config.DISCORD_BOT_GUILD_ID)
         await guild.create_scheduled_event(
@@ -49,7 +48,6 @@ class Dev(commands.Cog, name="dev"):
         log.info("no collision found")
         return False
 
-    @commands.command()
     async def get_events(self, ctx: commands) -> None:
         guild = self.bot.get_guild(config.DISCORD_BOT_GUILD_ID)
 

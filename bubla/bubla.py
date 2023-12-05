@@ -25,7 +25,7 @@ class Bubla(commands.Bot):
         super().__init__(
             command_prefix=commands.when_mentioned_or(config.DISCORD_COMMAND_PREFIX),
             intents=intents,
-            help_command=None,
+            help_command=commands.DefaultHelpCommand(),
         )
         """
         This creates custom bot variables so that we can access these variables in cogs more easily.
