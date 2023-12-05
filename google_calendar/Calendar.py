@@ -111,9 +111,9 @@ class Calendar:
             # Prints the start and name of the next 10 events
             for event in events:
                 # pprint.pprint(event)
-                start = datetime.datetime.strptime(event['start'].get('date'), '%Y-%m-%d')
-                end = datetime.datetime.strptime(event['end'].get('date'), '%Y-%m-%d')
-                date_start_spec = datetime.datetime.utcnow()
+                start = datetime.datetime.strptime(event['start'].get('date'), '%Y-%m-%d').astimezone()
+                end = datetime.datetime.strptime(event['end'].get('date'), '%Y-%m-%d').astimezone()
+                date_start_spec = datetime.datetime.utcnow().astimezone()
                 active = start < date_start_spec < end
                 upcoming = date_start_spec < start
                 remains = end - date_start_spec

@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import discord
 import tabulate
 
 import google_calendar
@@ -16,47 +17,24 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         self.calendar = google_calendar.Calendar(config.CALENDAR_ID, config.CALENDAR_SECRET_FILENAME,
                                                  config.CALENDAR_TOKEN_FILENAME)
 
-        # self.rally_reminder.start()
         self.timed_reminder.start()
 
-    @tasks.loop(minutes=24.0)
-    async def rally_reminder(self) -> None:
-        message = await self.rally_ends_soon()
-        log.debug("rally_reminder()")
-        if message:
-            message = '\n'.join(message)
-            channel = self.bot.get_channel(config.DISCORD_REMINDER_CHANNEL_ID)
-            await channel.send(message)
+    def compare_event_timing(self, discord_event, calendar_event):
+        if discord_event.start_time >= calendar_event.end or discord_event.end_time <= calendar_event.start:
+            return False
+        return True
 
-    @rally_reminder.before_loop
-    async def before_rally_reminder(self) -> None:
-        await self.bot.wait_until_ready()
+    def find_events_collision(self, discord_events, calendar_event):
+        log.info(f"searching for collision with {calendar_event.start}->{calendar_event.end}")
+        for discord_event in discord_events:
+            log.info(f"event:{discord_event.name} {discord_event.start_time} -> {discord_event.end_time}")
+            if self.compare_event_timing(discord_event, calendar_event):
+                log.info("collision")
+                return True
+        log.info("no collision found")
+        return False
 
-    @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=00, tzinfo=datetime.timezone.utc))
-    async def timed_reminder(self) -> None:
-        log.debug("timed_reminder()")
-        events = self.calendar.get_events_current()
-        if not events:
-            log.debug("no events")
-            return
-        event = events[0]
-        today = datetime.date.today()
-        log.debug(event.start)
-        log.debug(today)
-        message = []
-        if event.start.date() == today:
-            message = ["Just started today!!!!", self.calendar.format_events(events),
-                       "", "Previous week results:", preview(await self.get_leaderboard_message())]
-        else:
-            message = await self.rally_ends_soon()
-
-        if message:
-            message = '\n'.join(message)
-            channel = self.bot.get_channel(config.DISCORD_REMINDER_CHANNEL_ID)
-            await channel.send(message)
-
-    @commands.command()
-    async def reminder(self, ctx):
+    async def reminder_core(self, ctx):
         log.debug("reminder()")
         events = self.calendar.get_events_current()
         if not events:
@@ -71,12 +49,51 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
             message = ["Just started today!!!!", self.calendar.format_events(events),
                        "", "Previous week results:", preview(await self.get_leaderboard_message())]
         else:
-            message = await self.rally_ends_soon()
+            log.info(f"event ends soon")
+            message = await self.rally_ends_soon()  # for notification message
+            calendar_events = self.calendar.get_events_next()  # for pre-planning new event
+
+            await self.plan_next_events(calendar_events)
 
         if message:
             message = '\n'.join(message)
             # channel = self.bot.get_channel(config.REMINDER_CHANNEL_ID)
             await ctx.send(message)
+
+    async def plan_next_events(self, calendar_events):
+        if not calendar_events:
+            log.info("no events to be planned")
+            return
+
+        log.info("planning next event")
+        guild = self.bot.get_guild(config.DISCORD_BOT_GUILD_ID)
+        discord_events = await guild.fetch_scheduled_events()
+        for calendar_event in calendar_events:
+            log.info(f"checking event {calendar_event.summary}")
+            if not self.find_events_collision(discord_events, calendar_event):
+                # create discord event
+                log.info(f"Creating event {calendar_event.summary}")
+                await guild.create_scheduled_event(
+                    name=calendar_event.summary,
+                    description=calendar_event.description,
+                    start_time=calendar_event.start,
+                    end_time=calendar_event.end,
+                    entity_type=discord.EntityType.external,
+                    privacy_level=discord.PrivacyLevel.guild_only,
+                    location="DiRT Rally 2.0"
+                )
+                continue
+            else:
+                log.info(f"event {calendar_event.summary} exists")
+
+    @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=00, tzinfo=datetime.timezone.utc))
+    async def timed_reminder(self) -> None:
+        channel = self.bot.get_channel(config.DISCORD_REMINDER_CHANNEL_ID)
+        await self.reminder_core(channel)
+
+    @commands.command()
+    async def reminder(self, ctx):
+        await self.reminder_core(ctx)
 
     @timed_reminder.before_loop
     async def before_timed_hello(self) -> None:

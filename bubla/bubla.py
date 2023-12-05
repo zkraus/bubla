@@ -17,7 +17,8 @@ intents.message_content = True
 class Bubla(commands.Bot):
     cogs_list = [
         'general',
-        'rally_calendar'
+        'rally_calendar',
+        'dev',
     ]
 
     def __init__(self) -> None:
