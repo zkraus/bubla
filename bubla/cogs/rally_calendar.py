@@ -18,6 +18,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
                                                  config.CALENDAR_TOKEN_FILENAME)
 
         self.timed_reminder.start()
+        self.refresh_calendar.start()
 
     def compare_event_timing(self, discord_event, calendar_event):
         if discord_event.start_time >= calendar_event.end or discord_event.end_time <= calendar_event.start:
@@ -85,6 +86,10 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
                 continue
             else:
                 log.info(f"event {calendar_event.summary} exists")
+
+    @tasks.loop(time=datetime.time(hour=config.CALENDAR_REFRESH_HOUR, minute=00, tzinfo=datetime.timezone.utc))
+    async def refresh_calendar(self):
+        await self.calendar.get_events_current()
 
     @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=00, tzinfo=datetime.timezone.utc))
     async def timed_reminder(self) -> None:

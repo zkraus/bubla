@@ -43,6 +43,7 @@ CALENDAR_ID = config_data['calendar_id']
 CALENDAR_SECRET_FILENAME = config_data['calendar_secret_filename']
 CALENDAR_TOKEN_FILENAME = config_data['calendar_token_filename']
 CALENDAR_API_KEY_FILENAME = config_data['calendar_api_key_filename']
+CALENDAR_REFRESH_HOUR = config_data['calendar_refresh_hour']
 
 DISCORD_EVENT_END_SOON_DAYS = config_data['discord_event_end_soon_days']
 DISCORD_EVENT_START_SOON_DAYS = config_data['discord_event_start_soon_days']
