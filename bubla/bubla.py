@@ -79,8 +79,8 @@ class Bubla(commands.Bot):
 
         :param message: The message that was sent.
         """
-        if message.guild.id != config.DISCORD_BOT_GUILD_ID:
-            return
+        # if message.guild.id != config.DISCORD_BOT_GUILD_ID:
+        #     return
         if message.author == self.user or message.author.bot:
             return
         await self.process_commands(message)
