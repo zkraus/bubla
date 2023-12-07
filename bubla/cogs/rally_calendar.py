@@ -87,7 +87,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
     async def refresh_calendar(self):
         await self.calendar.get_events_current()
 
-    @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=38, tzinfo=datetime.timezone.utc))
+    @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=00, tzinfo=datetime.timezone.utc))
     async def timed_reminder(self) -> None:
         channels = await self.bot.get_reminder_channels()
         for channel in channels:
