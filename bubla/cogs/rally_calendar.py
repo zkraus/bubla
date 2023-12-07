@@ -49,17 +49,13 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         if event.start.date() == today:
             message = ["Just started today!!!!", self.calendar.format_events(events),
                        "", "Previous week results:", preview(await self.get_leaderboard_message())]
+            ctx.send('\n'.join(message))
         else:
             log.info(f"event ends soon")
-            message = await self.rally_ends_soon()  # for notification message
+            await self.rally_ends_soon(ctx)  # for notification message
             calendar_events = self.calendar.get_events_next()  # for pre-planning new event
 
             await self.plan_next_events(calendar_events)
-
-        if message:
-            message = '\n'.join(message)
-            # channel = self.bot.get_channel(config.REMINDER_CHANNEL_ID)
-            await ctx.send(message)
 
     async def plan_next_events(self, calendar_events):
         if not calendar_events:
@@ -91,10 +87,13 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
     async def refresh_calendar(self):
         await self.calendar.get_events_current()
 
-    @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=00, tzinfo=datetime.timezone.utc))
+    @tasks.loop(time=datetime.time(hour=config.DISCORD_REMINDER_HOUR, minute=38, tzinfo=datetime.timezone.utc))
     async def timed_reminder(self) -> None:
-        channel = self.bot.get_channel(config.DISCORD_REMINDER_CHANNEL_ID)
-        await self.reminder_core(channel)
+        channels = await self.bot.get_reminder_channels()
+        for channel in channels:
+            await self.reminder_core(channel)
+        # channel = self.bot.get_channel(config.DISCORD_REMINDER_CHANNEL_ID)
+        # await self.reminder_core(channel)
 
     @commands.hybrid_command()
     async def reminder(self, ctx):
@@ -103,6 +102,13 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         This is done by timed event, it should not be necessary to use this manually.
         """
         await self.reminder_core(ctx)
+
+    @commands.hybrid_command()
+    async def reminder2(self, ctx):
+        channels = await self.bot.get_reminder_channels()
+        for channel in channels:
+            await self.reminder_core(channel)
+
 
     @timed_reminder.before_loop
     async def before_timed_hello(self) -> None:
@@ -115,7 +121,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         if not events:
             return ["No current rally events available."]
         result = ["Current rally events:", self.calendar.format_events(events)]
-        await ctx.send(result)
+        await ctx.send(format_message(result))
 
     @commands.command()
     async def rally_upcoming(self, ctx):
@@ -124,7 +130,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         if not events:
             return ["No upcoming rally events available."]
         result = ["Upcoming rally events:", self.calendar.format_events(events)]
-        await ctx.send(result)
+        await ctx.send(format_message(result))
 
     @commands.command()
     async def rally_next(self, ctx):
@@ -133,7 +139,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         if not events:
             return ["No next rally events available."]
         result = ["Next rally events:", self.calendar.format_events(events)]
-        await ctx.send(result)
+        await ctx.send(format_message(result))
 
     @commands.command()
     async def rally_ends_soon(self, ctx):
@@ -142,7 +148,7 @@ class RallyCalendar(commands.Cog, name="rally_calendar"):
         if not events:
             return []
         result = ["Rally events ends soon:", self.calendar.format_events(events)]
-        await ctx.send(result)
+        await ctx.send(format_message(result))
 
     async def get_results(self):
         return [
@@ -278,6 +284,9 @@ def preview(message):
         message,
         "# 🚧 END OF PREVIEW REPOSNSE 🚧"
     ])
+
+def format_message(message):
+    return '\n'.join(message)
 
 
 async def setup(bot) -> None:

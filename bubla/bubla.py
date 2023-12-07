@@ -84,3 +84,18 @@ class Bubla(commands.Bot):
         if message.author == self.user or message.author.bot:
             return
         await self.process_commands(message)
+
+    async def get_reminder_channels(self) -> list[discord.TextChannel]:
+        guilds = self.fetch_guilds()
+        log.info(f"guilds: {guilds}")
+        reminder_channels = []
+        async for guild in guilds:
+            log.info(f"guild: {guild}")
+            guild_channels = await guild.fetch_channels()
+            log.info(f"guild_channels: {guild_channels}")
+            tmp_channels = [channel for channel in guild_channels
+                            if channel.name == config.DISCORD_REMINDER_CHANNEL_NAME]
+            reminder_channels += tmp_channels
+            log.info(f"tmp_channels: {tmp_channels}")
+        log.info(f"reminder_channels: {reminder_channels}")
+        return reminder_channels

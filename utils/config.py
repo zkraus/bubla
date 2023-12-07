@@ -36,6 +36,7 @@ DISCORD_BOT_GUILD_ID = config_data['discord_bot_guild_id']
 DISCORD_BOT_SECRET_FILENAME = config_data['discord_bot_secret_filename']
 
 DISCORD_REMINDER_CHANNEL_ID = config_data['discord_reminder_channel_id']
+DISCORD_REMINDER_CHANNEL_NAME = config_data['discord_reminder_channel_name']
 
 DISCORD_COMMAND_PREFIX = config_data['discord_command_prefix']
 
